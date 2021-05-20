@@ -1,6 +1,10 @@
+# These files are created locally
 src/*.jar
 src/build/
+# Typical IntellijIdea files to be ignored
 .idea
 *.iml
+# All files from src/burp dir except from `/BurpExtender.java` are common, there is no need to 
+# track them in repository
 src/burp/*
 !src/burp/BurpExtender.java
