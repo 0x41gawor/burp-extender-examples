@@ -1,0 +1,6 @@
+src/*.jar
+src/build/
+.idea
+*.iml
+src/burp/*
+!src/burp/BurpExtender.java
