@@ -1,59 +1,55 @@
 package burp;
 
-public class BurpExtender implements IBurpExtender, IHttpListener
+
+// In this extension we will create a tab in Burp Suite so we need some graphic library
+// Burp Suite allows us to create tabs with Swing
+import javax.swing.*;
+import java.awt.*;
+
+public class BurpExtender implements IBurpExtender,
+        // To be able to create an UI Tab by Extension we need to implement ITab interface
+        ITab
 {
-    // Change it to hosts u want to redirect between
-    private static final String HOST_FROM = "host1.example.org";
-    private static final String HOST_TO = "host2.example.org";
+    // We need this field to keep a reference for callback object send to us via `registerExtenderCallbacks` param
+    private IBurpExtenderCallbacks callbacks;
 
-    private IExtensionHelpers helpers;
-
-    //
-    // implement IBurpExtender
-    //
+    // Main Swing Pane for UI Tab
+    private JSplitPane splitPane;
 
     @Override
-    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks)
-    {
-        // obtain an extension helpers object
-        helpers = callbacks.getHelpers();
-        /*
-         helpers is an `IExtensionHelpers` object that will help you:
-         - analyze HTTP Request or Response
-         - Build HTTP service (in order to put it in HTTP message)
-         - encode and decode HTTP messages
-         - Build HTTP Request or Response (HTTP message in general)
-         */
+    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+        // keep a reference to our callbacks object
+        this.callbacks = callbacks;
 
         // set our extension name
-        callbacks.setExtensionName("Traffic redirector");
+        callbacks.setExtensionName("Custom logger");
 
-        // register ourselves as an HTTP listener
-        callbacks.registerHttpListener(this);
+        // Create our UI Tab
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+                // add the custom tab to Burp's UI (so this line ACTUALLY CREATES THE TAB)
+                callbacks.addSuiteTab(BurpExtender.this);
+            }
+        });
     }
 
     //
-    // implement IHttpListener
+    // implement ITab
     //
 
-    @Override
-    public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo)
+    @Override // Method from ITab
+    public String getTabCaption() {
+        return "Custom Logger";
+    }
+
+    @Override // Method from ITab
+    // This way we tell Burp which our graphical component should represent UI Tab
+    // Make this method to return the main swing component
+    public Component getUiComponent()
     {
-        // only process requests
-        if (messageIsRequest)
-        {
-            // get the HTTP service for the request
-            IHttpService httpService = messageInfo.getHttpService();
-
-            // We want to check if request is from some Service, and if it is redirect it to other service
-
-            // if the host is HOST_FROM, change it to HOST_TO
-            if (HOST_FROM.equalsIgnoreCase(httpService.getHost())) // equalsIgnoreCase is String's method
-            {
-                // We've got HTTPmessage in method params and we are setting a new Service for it
-                messageInfo.setHttpService(helpers.buildHttpService(HOST_TO, httpService.getPort(), httpService.getProtocol()));
-            }
-            ///TODO Do we send it further? IDK but 90% we don't in this code.
-        }
+        return splitPane;
     }
 }
