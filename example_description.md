@@ -1,0 +1,5 @@
+- Setting the name of the extension, which will be shown to the user in the UI.
+- Obtaining the extension-specific output and error streams.
+- Writing messages to the output and error streams.
+- Writing a message to the main Burp alerts log.
+- Generating an exception to demonstrate how this is reported to the user.

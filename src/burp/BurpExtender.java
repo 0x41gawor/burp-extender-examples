@@ -1,9 +1,30 @@
 package burp;
-// copied from https://portswigger.net/burp/extender/writing-your-first-burp-suite-extension#top
+
+// Copied from: https://github.com/PortSwigger/example-hello-world
+import java.io.PrintWriter;
+
 public class BurpExtender implements IBurpExtender
 {
-    public void registerExtenderCallbacks (IBurpExtenderCallbacks callbacks)
+    @Override
+    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks)
     {
-        // your extension code here
+        // set our extension name
+        callbacks.setExtensionName("Hello world extension");
+
+        // obtain our output and error streams
+        PrintWriter stdout = new PrintWriter(callbacks.getStdout(), true);
+        PrintWriter stderr = new PrintWriter(callbacks.getStderr(), true);
+
+        // write a message to our output stream
+        stdout.println("Hello output");
+
+        // write a message to our error stream
+        stderr.println("Hello errors");
+
+        // write a message to the Burp alerts tab
+        callbacks.issueAlert("Hello alerts");
+
+        // throw an exception that will appear in our error stream
+        throw new RuntimeException("Hello exceptions");
     }
 }
